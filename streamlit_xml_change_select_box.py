@@ -155,10 +155,10 @@ if len(xml_table) > 0 :
                         st.write("Hello" + user_selected_qno)
                         break
     st.session_state.moodle_qno_table = moodle_qno_table
-    option = st.selectbox( 'Please Select Moodle Question Number', moodle_qno_table, key="main_option" ) 
-    if option != w_select_text:
-        user_selected_qno = option        
-        selected_qno = option.split(" - ")[1]
+    st.session_state.option = st.selectbox( 'Please Select Moodle Question Number', moodle_qno_table, key="main_option" ) 
+    if st.session_state.option != w_select_text:
+        user_selected_qno = st.session_state.option        
+        selected_qno = st.session_state.option.split(" - ")[1]
         selected_qno = selected_qno.replace(" - Validated", "")
         selected_qno = selected_qno.rstrip()
         selected_qno = selected_qno.lstrip()
