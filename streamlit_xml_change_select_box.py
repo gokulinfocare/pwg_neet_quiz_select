@@ -6,7 +6,6 @@ import pandas as pd
 import base64
 import os
 from function_moodle_xml_create import create_moodle_xml
-global_modified_qno = []
 
 # Function to get data from XML file
 def get_data_from_xml(w_select_text):
