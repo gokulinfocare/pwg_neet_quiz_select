@@ -149,6 +149,7 @@ if len(xml_table) > 0 :
     option = st.selectbox( 'Please Select Moodle Question Number', moodle_qno_table, key="main_option" ) 
     if option != w_select_text:
         user_selected_qno = option
+        st.write(user_selected_qno)
         selected_qno = option.split(" - ")[1]
         selected_qno = selected_qno.lstrip()
         selected_rec = []
@@ -191,6 +192,7 @@ if len(xml_table) > 0 :
             if submitted:
                 global_modified_qno.append(user_selected_qno)
                 global_modified_qno = list(dict.fromkeys(global_modified_qno))
+                st.write(global_modified_qno[0])
                 st.experimental_rerun()
                 #for i in range(len(moodle_qno_table)):                
                 #    if user_selected_qno == moodle_qno_table[i]:
