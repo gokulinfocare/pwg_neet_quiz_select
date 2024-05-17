@@ -118,11 +118,14 @@ def get_moodle_qn(moodle_id):
 
 def prepare_correctfeedback_text_lang(w_correct_answer,w_correctfeedback, w_lang):
 
+    try:
+        w_en_correct_answer = w_correct_answer.split("<br>")[0]
+        
+        w_new_text = "Your answer is incorrect" + "<br>Correct answer is: <strong>" + w_en_correct_answer + "</strong><br>" + w_lang  + "<br>" + w_correctfeedback
 
-    w_en_correct_answer = w_correct_answer.split("<br>")[0]
-    
-    w_new_text = "Your answer is incorrect" + "<br>Correct answer is: <strong>" + w_en_correct_answer + "</strong><br>" + w_lang  + "<br>" + w_correctfeedback
-
+    except Exception as e:
+        print(f"Error in prepare_correctfeedback_text_lang : {e}")
+        sys.exit()
 
     return w_new_text
 
@@ -147,7 +150,7 @@ def check_replace_duplicate(option):
     #     if w_split[0] == w_split[1]:
     #         option_new = w_split[0]
     #         return option_new
-    # if len(w_split) > 1:     
+    # if len(w_split) > 1:    
     #     w_en_option = w_split[0]
     #     w_lang_option = w_split[1]
     #     w_en_option_table = w_en_option.split(" ")
@@ -174,26 +177,30 @@ def check_replace_duplicate(option):
     return option_new 
 
 def check_adjust_options(w_option1, w_option2, w_option3, w_option4):
-    # Check if any one options does not have breaks, then we use only english        
-    answer1 = w_option1
-    answer2 = w_option2
-    answer3 = w_option3
-    answer4 = w_option4
-    count_br1 = w_option1.count("<br>")
-    count_br2 = w_option2.count("<br>")
-    count_br3 = w_option3.count("<br>")
-    count_br4 = w_option4.count("<br>")
-    if count_br1 == count_br2 == count_br3 == count_br4 == 0:   # All options are in english
-        return w_option1, w_option2, w_option3, w_option4
-    
-    # If any one option got zero then we use english only
-    if count_br1 == 0 or count_br2 == 0 or count_br3 == 0 or count_br4 == 0:
-        answer1 = w_option1.split("<br>")[0]
-        answer2 = w_option2.split("<br>")[0]
-        answer3 = w_option3.split("<br>")[0]
-        answer4 = w_option4.split("<br>")[0]
-        return answer1, answer2, answer3, answer4
 
+    try:
+        # Check if any one options does not have breaks, then we use only english        
+        answer1 = w_option1
+        answer2 = w_option2
+        answer3 = w_option3
+        answer4 = w_option4
+        count_br1 = w_option1.count("<br>")
+        count_br2 = w_option2.count("<br>")
+        count_br3 = w_option3.count("<br>")
+        count_br4 = w_option4.count("<br>")
+        if count_br1 == count_br2 == count_br3 == count_br4 == 0:   # All options are in english
+            return w_option1, w_option2, w_option3, w_option4
+        
+        # If any one option got zero then we use english only
+        if count_br1 == 0 or count_br2 == 0 or count_br3 == 0 or count_br4 == 0:
+            answer1 = w_option1.split("<br>")[0]
+            answer2 = w_option2.split("<br>")[0]
+            answer3 = w_option3.split("<br>")[0]
+            answer4 = w_option4.split("<br>")[0]
+            return answer1, answer2, answer3, answer4
+    except Exception as e:
+        print(f"Error in check_adjust_options : {e}")
+        sys.exit()
     # We will add more logic here to adjust the options
 
 
@@ -201,12 +208,15 @@ def check_adjust_options(w_option1, w_option2, w_option3, w_option4):
 
 def update_lang_incorrect_msg(input_text, w_correct_answer_mod_lang):
 
-    output = input_text
-    match = re.search('<strong>(.*?)</strong>', input_text)
-    if match:
-        data = match.group(1)
-        output = input_text.replace(data, w_correct_answer_mod_lang)
-            
+    try:
+        output = input_text
+        match = re.search('<strong>(.*?)</strong>', input_text)
+        if match:
+            data = match.group(1)
+            output = input_text.replace(data, w_correct_answer_mod_lang)
+    except Exception as e:
+        print(f"Error in update_lang_incorrect_msg : {e}")
+        sys.exit()          
 
     
     return output
@@ -214,116 +224,142 @@ def update_lang_incorrect_msg(input_text, w_correct_answer_mod_lang):
 
 def capitalize_first_letter(input_text):
 
-    output_text = input_text
-    output_text = output_text.lstrip()
-    if output_text[0].islower():
-        output_text = output_text[0].upper() + output_text[1:]
+    try:
+        output_text = input_text
+        output_text = output_text.lstrip()
+        if output_text[0].islower():
+            output_text = output_text[0].upper() + output_text[1:]
 
-    # Split the input at . and capitalize the first letter of each sentence
-    output_text = output_text.split(". ")
-    new_text = []
-    for rec in output_text:
-        rec = rec.lstrip()
-        if ('\(' in rec) or ( '\)' in rec ) or ( 'math' in rec ) or ( '\[' in rec ) or ( ']\\' in rec) :
-            new_text.append(rec)
-            continue
-        elif rec.isascii() and rec[0].islower():
-            rec = rec[0].upper() + rec[1:]
-            new_text.append(rec)
-        else:
-            new_text.append(rec)
-        
-    output_text = ". ".join(new_text)
+        # Split the input at . and capitalize the first letter of each sentence
+        output_text = output_text.split(". ")
+        new_text = []
+        for rec in output_text:
+            if rec == ' ':
+                new_text.append(rec)
+                continue
+            rec = rec.lstrip()
+            if ('\(' in rec) or ( '\)' in rec ) or ( 'math' in rec ) or ( '\[' in rec ) or ( ']\\' in rec) :
+                new_text.append(rec)
+                continue
+            elif rec.isascii() and rec[0].islower():
+                rec = rec[0].upper() + rec[1:]
+                new_text.append(rec)
+            else:
+                new_text.append(rec)
+            
+        output_text = ". ".join(new_text)
+    
+    except Exception as e:
+        print(f"Error in capitalize_first_letter : {e}, Text : {input_text}")
+        sys.exit()
 
     
     return output_text
 
 def remove_spaces(input_text):
-    output_text = input_text 
-    if output_text.startswith("<p>") and output_text.endswith("</p>"):
-        output_text = output_text[3:-4]
+    try:
+        output_text = input_text 
+        if output_text.startswith("<p>") and output_text.endswith("</p>"):
+            output_text = output_text[3:-4]
+
+    except Exception as e:
+        print(f"Error in remove_spaces : {e}")
+        sys.exit()
+
     return output_text 
 
 def remove_unnecessary_text(input_text, w_lang_xml):
     
-    output_text = input_text
-    if w_lang_xml == "":
-        upper_text = input_text.upper()
-        if "ON HOW THE ANSWER" in upper_text:
-            start_position = upper_text.find("ON HOW THE ANSWER")
-            end_position = start_position + 28
-            if upper_text[end_position] == ":":
-                end_position += 2
-            output_text = output_text[:start_position] + output_text[end_position:]
-        upper_text = output_text.upper()
-        if "ANSWER IS CORRECT:" in upper_text:
-            # Check if line break is present
-            if '<br>' in upper_text:
-                upper_text = upper_text.split('<br>')
-                if "ANSWER IS CORRECT:" in upper_text[0]:
-                    if upper_text[1] == "2. : ":
-                        skip_text = len(upper_text[0]) + len(upper_text[1]) + 1
-                    else:
-                        skip_text = len(upper_text[0]) + 1
-                    
-                    output_text = output_text[skip_text + 1:]
-            else:
-                start_position = upper_text.find("ANSWER IS CORRECT:")
-                end_position = start_position + 18            
-                if upper_text[end_position:end_position + 11] == " YES 2. :  ":
-                    end_position += 11            
-                    
-                if upper_text[end_position:end_position + 4] == " YES":
-                    end_position += 4
-                    
+    try:
+        output_text = input_text
+        if w_lang_xml == "":
+            upper_text = input_text.upper()
+            if "ON HOW THE ANSWER" in upper_text:
+                start_position = upper_text.find("ON HOW THE ANSWER")
+                end_position = start_position + 28
+                if upper_text[end_position] == ":":
+                    end_position += 2
+                output_text = output_text[:start_position] + output_text[end_position:]
+            upper_text = output_text.upper()
+            if "ANSWER IS CORRECT:" in upper_text:
+                # Check if line break is present
+                if '<br>' in upper_text:
+                    upper_text = upper_text.split('<br>')
+                    if "ANSWER IS CORRECT:" in upper_text[0]:
+                        if upper_text[1] == "2. : ":
+                            skip_text = len(upper_text[0]) + len(upper_text[1]) + 1
+                        else:
+                            skip_text = len(upper_text[0]) + 1
+                        
+                        output_text = output_text[skip_text + 1:]
+                else:
+                    start_position = upper_text.find("ANSWER IS CORRECT:")
+                    end_position = start_position + 18            
+                    if upper_text[end_position:end_position + 11] == " YES 2. :  ":
+                        end_position += 11            
+                        
+                    if upper_text[end_position:end_position + 4] == " YES":
+                        end_position += 4
+                        
+                    output_text = output_text[:start_position] + output_text[end_position:]
+
+            upper_text = output_text.upper()        
+            if "---ANSWER: YES" in upper_text:
+                start_position = upper_text.find("---ANSWER: YES")
+                end_position = start_position + 14
                 output_text = output_text[:start_position] + output_text[end_position:]
 
-        upper_text = output_text.upper()        
-        if "---ANSWER: YES" in upper_text:
-            start_position = upper_text.find("---ANSWER: YES")
-            end_position = start_position + 14
-            output_text = output_text[:start_position] + output_text[end_position:]
+            upper_text = output_text.upper()
+            if "ANSWER IS INVALID: NO," in upper_text:
+                start_position = upper_text.find("ANSWER IS INVALID: NO,")
+                end_position = start_position + 22
+                output_text = output_text[:start_position] + output_text[end_position:]
 
-        upper_text = output_text.upper()
-        if "ANSWER IS INVALID: NO," in upper_text:
-            start_position = upper_text.find("ANSWER IS INVALID: NO,")
-            end_position = start_position + 22
-            output_text = output_text[:start_position] + output_text[end_position:]
-
-        upper_text = output_text.upper()
-        if "EXPLANATION:" in upper_text:
-            output_text = output_text[12:]
-        
-        output_text = output_text.replace("**", "")
-        output_text = output_text.replace("2. Detailed", "")
-        #output_text = output_text.replace("\n", "<br>")
-        if output_text[0] == " ":
-            output_text = output_text[1:]
-        if output_text[0] == " ":  # Check again
-            output_text = output_text[1:]
-        if output_text[:4] == "<br>":
-            output_text = output_text[4:]
-        if output_text[:4] == "2. :":
-            output_text = output_text[4:]
-        if output_text[0] == " ":
-            output_text = output_text[1:]
-        if output_text[:11] == "Therefore, ":
-            output_text = output_text[11:]
-            output_text = capitalize_first_letter(output_text)
-        if output_text[-8:] == "Detailed":
-            output_text = output_text[:-8]
-        output_text = output_text.lstrip()
-        output_text = output_text.rsplit(".", 1)[0] + "."
+            upper_text = output_text.upper()
+            if "EXPLANATION:" in upper_text:
+                output_text = output_text[12:]
+            
+            output_text = output_text.replace("**", "")
+            output_text = output_text.replace("2. Detailed", "")
+            #output_text = output_text.replace("\n", "<br>")
+            if output_text[0] == " ":
+                output_text = output_text[1:]
+            if output_text[0] == " ":  # Check again
+                output_text = output_text[1:]
+            if output_text[:4] == "<br>":
+                output_text = output_text[4:]
+            if output_text[:4] == "2. :":
+                output_text = output_text[4:]
+            if output_text[0] == " ":
+                output_text = output_text[1:]
+            if output_text[:11] == "Therefore, ":
+                output_text = output_text[11:]
+                output_text = capitalize_first_letter(output_text)
+            if output_text[-8:] == "Detailed":
+                output_text = output_text[:-8]
+            output_text = output_text.lstrip()
+            output_text = output_text.rsplit(".", 1)[0] + "."
+    
+    except Exception as e:
+        print(f"Error in remove_unnecessary_text : {e}")
+        sys.exit()
 
     return output_text
 
 def correct_formatting(input_text, w_lang_xml):
-    output_text = input_text
-    if w_lang_xml == "":
-        output_text = capitalize_first_letter(output_text)
-    #Power of symbol
-    output_text = re.sub(r'(\^)(\d+)', r'\(^{\2}\)', output_text)
-    output_text = output_text.replace("\n", "<br>")    
+
+    try:
+        output_text = input_text
+        if w_lang_xml == "":
+            output_text = capitalize_first_letter(output_text)
+        #Power of symbol
+        output_text = re.sub(r'(\^)(\d+)', r'\(^{\2}\)', output_text)
+        output_text = output_text.replace("\n", "<br>") 
+
+    except Exception as e:
+        print(f"Error in correct_formatting : {e}")
+        sys.exit()
+
     return output_text
 
 # def adjust_question_text(w_questiontext, w_lang_xml):
