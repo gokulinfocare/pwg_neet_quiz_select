@@ -6,10 +6,11 @@ import pandas as pd
 import base64
 import os
 from function_moodle_xml_create import create_moodle_xml
+global_modified_qno = []
 
 # Function to get data from XML file
 def get_data_from_xml(w_select_text):
-
+    global global_modified_qno
     xml_table = []              # List to store the data from XML file
     new_filename = "updated.xml"   # Default name for updated XML file
     moodle_qno_table = []
@@ -173,9 +174,11 @@ if len(xml_table) > 0 :
             # Every form must have a submit button.
             submitted = st.form_submit_button('Question is Validated. Click to Save Changes')
             if submitted:
-                for i in range(len(moodle_qno_table)):                
-                    if user_selected_qno == moodle_qno_table[i]:
-                        moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
+                global_modified_qno.append(user_selected_qno)
+                global_modified_qno = list(dict.fromkeys(global_modified_qno))
+                #for i in range(len(moodle_qno_table)):                
+                #    if user_selected_qno == moodle_qno_table[i]:
+                #        moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
                         #del st.session_state['main_option']
                         #st.session_state.main_option = moodle_qno_table[i]
                         st.rerun()
