@@ -6,7 +6,7 @@ import pandas as pd
 import base64
 import os
 from function_moodle_xml_create import create_moodle_xml
-
+global_modified_qno = []
 # Function to get data from XML file
 def get_data_from_xml(w_select_text):
     global global_modified_qno
@@ -129,7 +129,7 @@ def edit_data(data):
     return edited_data
 
 # Main
-global global_modified_qno
+
 w_select_text = "Please Click here to Select from the list below"
 
 if 'main_option' not in st.session_state:
@@ -138,6 +138,14 @@ if 'main_option' not in st.session_state:
 xml_table, moodle_qno_table, new_filename = get_data_from_xml(w_select_text)       #Get the data from the XML file
 if 'moodle_qno_table' not in st.session_state:
     st.session_state.moodle_qno_table = moodle_qno_table
+else:
+    for rec in global_modified_qno:
+            for i in range(len(moodle_qno_table)):                
+                    if rec == moodle_qno_table[i]:
+                        moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
+                        st.write("Hello" + user_selected_qno)
+                        st.session_state.moodle_qno_table = moodle_qno_table
+                        break
 
 if len(xml_table) > 0 :
     for rec in global_modified_qno:
