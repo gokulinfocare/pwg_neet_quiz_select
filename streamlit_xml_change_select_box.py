@@ -138,6 +138,8 @@ if 'main_option' not in st.session_state:
 xml_table, moodle_qno_table, new_filename = get_data_from_xml(w_select_text)       #Get the data from the XML file
 if 'qno_table' not in st.session_state:
     st.session_state.moodle_qno_table = moodle_qno_table
+else:
+    st.session_state.moodle_qno_table = [w_select_text, 'Hi']
     
 for rec in global_modified_qno:
     for i in range(len(moodle_qno_table)):
