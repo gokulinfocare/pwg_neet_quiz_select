@@ -159,6 +159,8 @@ if len(xml_table) > 0 :
     if option != w_select_text:
         user_selected_qno = option        
         selected_qno = option.split(" - ")[1]
+        selected_qno = selected_qno.replace(" - Validated", "")
+        selected_qno = selected_qno.rstrip()
         selected_qno = selected_qno.lstrip()
         selected_rec = []
         for rec in xml_table:
@@ -197,12 +199,16 @@ if len(xml_table) > 0 :
             incorrect_feedback = st.text_input('Incorrect Feedback', selected_rec[0]['incorrect_feedback'])
             # Every form must have a submit button.
             submitted = st.form_submit_button('Question is Validated. Click to Save Changes')
+            w_new_option = option
             if submitted:
                 for i in range(len(moodle_qno_table)):                
                     if user_selected_qno == moodle_qno_table[i]:
                         if "Validated" not in moodle_qno_table[i]:
                             moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
-                st.session_state.option = st.selectbox( 'Please Select Moodle Question Number', moodle_qno_table, key="main_option" ) 
+                            w_new_option = moodle_qno_table[i]
+                del st.session_state['main_option']
+                st.session_state.main_option = w_new_option
+                st.rerun()
                 #del st.session_state['moodle_qno_table']
                 #global_modified_qno.append(user_selected_qno)
                 #global_modified_qno = list(dict.fromkeys(global_modified_qno))
