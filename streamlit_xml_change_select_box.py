@@ -190,7 +190,7 @@ if len(xml_table) > 0 :
                             moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
                             w_new_option = moodle_qno_table[i]
                 del st.session_state['main_option']
-                st.session_state.main_option = w_new_option
+                st.session_state.main_option = w_select_text
                 st.rerun()
                 #del st.session_state['moodle_qno_table']
                 #global_modified_qno.append(user_selected_qno)
