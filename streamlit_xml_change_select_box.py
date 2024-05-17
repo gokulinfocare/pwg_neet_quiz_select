@@ -198,6 +198,7 @@ if len(xml_table) > 0 :
             # Every form must have a submit button.
             submitted = st.form_submit_button('Question is Validated. Click to Save Changes')
             if submitted:
+                del st.session_state['moodle_qno_table']
                 global_modified_qno.append(user_selected_qno)
                 global_modified_qno = list(dict.fromkeys(global_modified_qno))
                 st.write(global_modified_qno[0])
