@@ -149,7 +149,7 @@ if len(xml_table) > 0 :
     option = st.selectbox( 'Please Select Moodle Question Number', moodle_qno_table, key="main_option" ) 
     if option != w_select_text:
         user_selected_qno = option
-        st.write(user_selected_qno)
+        st.write("Hello" + user_selected_qno)
         selected_qno = option.split(" - ")[1]
         selected_qno = selected_qno.lstrip()
         selected_rec = []
