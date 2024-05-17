@@ -185,19 +185,7 @@ if len(xml_table) > 0 :
             del st.session_state['main_option']
             st.session_state.main_option = w_select_text
             st.rerun()
-        if submitted:
-            #updated_rec = edit_data(selected_rec)
-            selected_rec[0]['questiontext'] = qtext
-            selected_rec[0]['option1'] = option1
-            selected_rec[0]['option2'] = option2
-            selected_rec[0]['option3'] = option3
-            selected_rec[0]['option4'] = option4
-            selected_rec[0]['answer'] = answer
-            selected_rec[0]['soln'] = soln
-            selected_rec[0]['incorrect_feedback'] = incorrect_feedback
-            xml_table = create_moodle_xml(xml_table, new_filename)
-            st.write("### Updated Data:")
-            st.dataframe(selected_rec)
+        
          
            #updated_rec = edit_data(selected_rec)
 
