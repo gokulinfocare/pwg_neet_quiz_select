@@ -187,7 +187,7 @@ if len(xml_table) > 0 :
                 #        moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
                         #del st.session_state['main_option']
                         #st.session_state.main_option = moodle_qno_table[i]
-                st.rerun()
+                #st.rerun()
         
         
         cancel = st.button('Cancel Changes')    
