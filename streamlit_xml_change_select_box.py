@@ -176,8 +176,8 @@ if len(xml_table) > 0 :
                 for i in range(len(moodle_qno_table)):                
                     if user_selected_qno == moodle_qno_table[i]:
                         moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
-                        del st.session_state['main_option']
-                        st.session_state.main_option = moodle_qno_table[i]
+                        #del st.session_state['main_option']
+                        #st.session_state.main_option = moodle_qno_table[i]
                         st.rerun()
         
         
