@@ -130,6 +130,7 @@ def edit_data(data):
     return edited_data
 
 # Main
+global global_modified_qno
 w_select_text = "Please Click here to Select from the list below"
 
 if 'main_option' not in st.session_state:
