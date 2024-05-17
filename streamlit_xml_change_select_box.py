@@ -136,12 +136,16 @@ if 'main_option' not in st.session_state:
     st.session_state.option = w_select_text
 
 xml_table, moodle_qno_table, new_filename = get_data_from_xml(w_select_text)       #Get the data from the XML file
+if 'moodle_qno_table' not in st.session_state:
+    st.session_state.moodle_qno_table = moodle_qno_table
+
 if len(xml_table) > 0 :
     for rec in global_modified_qno:
             for i in range(len(moodle_qno_table)):                
                     if rec == moodle_qno_table[i]:
                         moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
                         break
+     st.session_state.moodle_qno_table = moodle_qno_table
     option = st.selectbox( 'Please Select Moodle Question Number', moodle_qno_table, key="main_option" ) 
     if option != w_select_text:
         user_selected_qno = option
@@ -187,6 +191,7 @@ if len(xml_table) > 0 :
             if submitted:
                 global_modified_qno.append(user_selected_qno)
                 global_modified_qno = list(dict.fromkeys(global_modified_qno))
+                st.experimental_rerun()
                 #for i in range(len(moodle_qno_table)):                
                 #    if user_selected_qno == moodle_qno_table[i]:
                 #        moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
