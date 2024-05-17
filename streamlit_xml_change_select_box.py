@@ -94,7 +94,13 @@ def get_data_from_xml(w_select_text):
         if len(xml_table) != 50:
             print("50 records not found in XML file")
             sys.exit()
-        
+
+        for rec in global_modified_qno:
+            for i in range(len(moodle_qno_table)):                
+                    if rec == moodle_qno_table[i]:
+                        moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
+                        break
+                        
     return xml_table , moodle_qno_table, new_filename         # Return the data and new filename
 
 def edit_data(data):
