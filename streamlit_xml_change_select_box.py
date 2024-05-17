@@ -199,7 +199,7 @@ if len(xml_table) > 0 :
                             global_modified_qno.append(w_new_option)
                 del st.session_state['main_option']
                 st.session_state.main_option = w_select_text
-                del. st.session_state['moodle_qno_table']
+                del st.session_state['moodle_qno_table']
                 st.session_state.moodle_qno_table = moodle_qno_table
                 st.rerun()
                 #del st.session_state['moodle_qno_table']
