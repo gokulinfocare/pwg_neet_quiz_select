@@ -198,11 +198,16 @@ if len(xml_table) > 0 :
             # Every form must have a submit button.
             submitted = st.form_submit_button('Question is Validated. Click to Save Changes')
             if submitted:
-                del st.session_state['moodle_qno_table']
-                global_modified_qno.append(user_selected_qno)
-                global_modified_qno = list(dict.fromkeys(global_modified_qno))
-                st.write(global_modified_qno[0])
-                st.experimental_rerun()
+                for i in range(len(moodle_qno_table)):                
+                    if user_selected_qno == moodle_qno_table[i]:
+                        if "Validated" not in moodle_qno_table[i]:
+                            moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
+                st.session_state.option = st.selectbox( 'Please Select Moodle Question Number', moodle_qno_table, key="main_option" ) 
+                #del st.session_state['moodle_qno_table']
+                #global_modified_qno.append(user_selected_qno)
+                #global_modified_qno = list(dict.fromkeys(global_modified_qno))
+                #st.write(global_modified_qno[0])
+                #st.experimental_rerun()
                 #for i in range(len(moodle_qno_table)):                
                 #    if user_selected_qno == moodle_qno_table[i]:
                 #        moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
