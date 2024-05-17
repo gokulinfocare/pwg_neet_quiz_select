@@ -145,7 +145,7 @@ if len(xml_table) > 0 :
                     if rec == moodle_qno_table[i]:
                         moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
                         break
-     st.session_state.moodle_qno_table = moodle_qno_table
+    st.session_state.moodle_qno_table = moodle_qno_table
     option = st.selectbox( 'Please Select Moodle Question Number', moodle_qno_table, key="main_option" ) 
     if option != w_select_text:
         user_selected_qno = option
