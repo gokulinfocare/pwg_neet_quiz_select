@@ -200,7 +200,7 @@ if len(xml_table) > 0 :
                 del st.session_state['main_option']
                 st.session_state.main_option = w_select_text
                 del st.session_state['moodle_qno_table']
-                st.session_state.moodle_qno_table = moodle_qno_table
+                st.session_state.moodle_qno_table = [w_select_text, 'Hello']    #moodle_qno_table
                 st.rerun()
                 #del st.session_state['moodle_qno_table']
                 #global_modified_qno.append(user_selected_qno)
