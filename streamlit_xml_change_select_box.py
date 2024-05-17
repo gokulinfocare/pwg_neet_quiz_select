@@ -176,6 +176,9 @@ if len(xml_table) > 0 :
                 for i in range(len(moodle_qno_table)):                
                     if user_selected_qno == moodle_qno_table[i]:
                         moodle_qno_table[i] = moodle_qno_table[i] + " - Validated"
+                        del st.session_state['main_option']
+                        st.session_state.main_option = moodle_qno_table[i]
+                        st.rerun()
         
         
         cancel = st.button('Cancel Changes')    
@@ -188,27 +191,3 @@ if len(xml_table) > 0 :
         
          
            #updated_rec = edit_data(selected_rec)
-
-
-
-
-
-# def change_input(calc_default):
-#     default = st.text_input('Change Field', calc_default, key='change_input')
-#     return default
-
-# def choose_project():
-#     projects = st.selectbox('Project', ['Project 1', 'Project 2', 'Project 3'], key='project', on_change=on_text_input_change)
-#     return projects
-
-# calc_def = 5
-
-# if 'prev_input' not in st.session_state:
-#     st.session_state.prev_input = calc_def
-
-# choosen_project = choose_project()
-# input_text = change_input(st.session_state.prev_input)
-
-# for key, value in st.session_state.items():
-#     st.write(f"{key}: {value}")
-     
