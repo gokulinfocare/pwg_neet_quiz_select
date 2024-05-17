@@ -199,7 +199,7 @@ if len(xml_table) > 0 :
             incorrect_feedback = st.text_input('Incorrect Feedback', selected_rec[0]['incorrect_feedback'])
             # Every form must have a submit button.
             submitted = st.form_submit_button('Question is Validated. Click to Save Changes')
-            w_new_option = option
+            w_new_option = st.session_state.option
             if submitted:
                 for i in range(len(moodle_qno_table)):                
                     if user_selected_qno == moodle_qno_table[i]:
