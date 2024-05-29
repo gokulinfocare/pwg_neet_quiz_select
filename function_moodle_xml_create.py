@@ -1,16 +1,17 @@
 # This program creates Moodle XML File
 import xml.etree.ElementTree as ET
-#import pyodbc
+import pyodbc
 import sys
 import re
+import streamlit as st
 
-# def start_connection():
-#     conn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};"
-#                 "Server=LAPTOP-EITSFNFO;"
-#                 "Database=RamaKrishna;"
-#                 "Trusted_Connection=yes;")
-#     cursor = conn.cursor()
-#     return conn, cursor
+def start_connection():
+    conn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};"
+                "Server=LAPTOP-EITSFNFO;"
+                "Database=RamaKrishna;"
+                "Trusted_Connection=yes;")
+    cursor = conn.cursor()
+    return conn, cursor
 
 def convert_math_delimiters(latex_string):
     new_string = ""
@@ -120,7 +121,15 @@ def prepare_correctfeedback_text_lang(w_correct_answer,w_correctfeedback, w_lang
 
     try:
         w_en_correct_answer = w_correct_answer.split("<br>")[0]
-        
+
+        if 'Your answer is incorrect' in w_correctfeedback:      # We need to remove and replace with latest
+            input_table = w_correctfeedback.split("<br>")
+            if "Your answer is incorrect" in input_table[0]:
+                input_table = input_table[1:]
+            if "Correct answer is:" in input_table[0]:
+                input_table = input_table[1:]
+            if input_table[0] == "":
+                input_table = input_table[1:]
         w_new_text = "Your answer is incorrect" + "<br>Correct answer is: <strong>" + w_en_correct_answer + "</strong><br>" + w_lang  + "<br>" + w_correctfeedback
 
     except Exception as e:
@@ -130,6 +139,16 @@ def prepare_correctfeedback_text_lang(w_correct_answer,w_correctfeedback, w_lang
     return w_new_text
 
 def prepare_correctfeedback_text_en(w_correct_answer,w_correctfeedback):
+
+    if "Your answer is incorrect" in w_correctfeedback:
+        input_table = w_correctfeedback.split("<br>")
+        if "Your answer is incorrect" in input_table[0]:
+            input_table = input_table[1:]
+        if "Correct answer is:" in input_table[0]:
+            input_table = input_table[1:]
+        if input_table[0] == "":
+            input_table = input_table[1:]
+        w_correctfeedback = "<br>".join(input_table)
 
     w_new_text = "Your answer is incorrect" + "<br>Correct answer is: <strong>" + w_correct_answer + "</strong><br>" 
     w_new_text = w_new_text  + w_correctfeedback
@@ -226,7 +245,7 @@ def capitalize_first_letter(input_text):
 
     try:
         output_text = input_text
-        output_text = output_text.lstrip()
+        output_text = output_text.strip()
         if output_text[0].islower():
             output_text = output_text[0].upper() + output_text[1:]
 
@@ -237,7 +256,7 @@ def capitalize_first_letter(input_text):
             if rec == ' ':
                 new_text.append(rec)
                 continue
-            rec = rec.lstrip()
+            rec = rec.strip()
             if ('\(' in rec) or ( '\)' in rec ) or ( 'math' in rec ) or ( '\[' in rec ) or ( ']\\' in rec) :
                 new_text.append(rec)
                 continue
@@ -259,8 +278,8 @@ def capitalize_first_letter(input_text):
 def remove_spaces(input_text):
     try:
         output_text = input_text 
-        if output_text.startswith("<p>") and output_text.endswith("</p>"):
-            output_text = output_text[3:-4]
+        if "<p>" in output_text:
+            output_text = output_text.replace("<p>", "").replace("</p>", "")
 
     except Exception as e:
         print(f"Error in remove_spaces : {e}")
@@ -278,9 +297,10 @@ def remove_unnecessary_text(input_text, w_lang_xml):
                 start_position = upper_text.find("ON HOW THE ANSWER")
                 end_position = start_position + 28
                 if upper_text[end_position] == ":":
-                    end_position += 2
+                    end_position += 1
                 output_text = output_text[:start_position] + output_text[end_position:]
             upper_text = output_text.upper()
+            
             if "ANSWER IS CORRECT:" in upper_text:
                 # Check if line break is present
                 if '<br>' in upper_text:
@@ -303,19 +323,22 @@ def remove_unnecessary_text(input_text, w_lang_xml):
                         
                     output_text = output_text[:start_position] + output_text[end_position:]
 
-            upper_text = output_text.upper()        
+            upper_text = output_text.upper()
+                    
             if "---ANSWER: YES" in upper_text:
                 start_position = upper_text.find("---ANSWER: YES")
                 end_position = start_position + 14
                 output_text = output_text[:start_position] + output_text[end_position:]
 
             upper_text = output_text.upper()
+            
             if "ANSWER IS INVALID: NO," in upper_text:
                 start_position = upper_text.find("ANSWER IS INVALID: NO,")
                 end_position = start_position + 22
                 output_text = output_text[:start_position] + output_text[end_position:]
 
             upper_text = output_text.upper()
+            
             if "EXPLANATION:" in upper_text:
                 output_text = output_text[12:]
             
@@ -328,26 +351,38 @@ def remove_unnecessary_text(input_text, w_lang_xml):
                 output_text = output_text[1:]
             if output_text[:4] == "<br>":
                 output_text = output_text[4:]
+                if output_text[:4] == "<br>":
+                    output_text = output_text[4:]
+                if output_text[:2] == "  ":
+                    output_text = output_text[2:]
+                if output_text[0] == " ":  # Check again
+                    output_text = output_text[1:]
             if output_text[:4] == "2. :":
                 output_text = output_text[4:]
             if output_text[0] == " ":
                 output_text = output_text[1:]
             if output_text[:11] == "Therefore, ":
-                output_text = output_text[11:]
+                output_text = output_text[11:]                
                 output_text = capitalize_first_letter(output_text)
             if output_text[-8:] == "Detailed":
                 output_text = output_text[:-8]
-            output_text = output_text.lstrip()
-            output_text = output_text.rsplit(".", 1)[0] + "."
-    
+            output_text = output_text.strip()
+            # Below statement removes any text if the text is not ending with . This is only for English
+            if output_text.isascii() and output_text[-1] != ".":
+                output_text = output_text.rsplit(".", 1)[0] + "."
+            
+
     except Exception as e:
         print(f"Error in remove_unnecessary_text : {e}")
         sys.exit()
+   
 
+    
     return output_text
 
 def correct_formatting(input_text, w_lang_xml):
 
+    input_text = input_text.strip()
     try:
         output_text = input_text
         if w_lang_xml == "":
@@ -398,35 +433,25 @@ def create_moodle_xml(questions):
     for question in questions:
         # Naming conversion from different format to Moodle format
         w_questiontext = w_option1 = w_option2 = w_option3 = w_option4 = w_answer = w_correctfeedback = w_incorrectfeedback = ""
-        
+        moodle_id = moodle_qno = w_correct_answer = w_correct_answer_mod_lang = ""
+        w_option1_lang = w_option2_lang = w_option3_lang = w_option4_lang = w_lang_xml = ""
+        w_correct_answer_lang = w_incorrect_answer_msg = ""
         if "moodle_id" in question:
             moodle_id = question["moodle_id"]
         if 'questiontext' in question:
             w_questiontext = question['questiontext']
             if w_questiontext[-7:] == 'ptions:':  # Remove the last 8 characters
                 w_questiontext = w_questiontext[:-8]
-            # if '<br>' in w_questiontext:
-            #     count = w_questiontext.count('<br>')
-            #     if count == 3:
-            #         w_questiontext = w_questiontext.replace('<br>', '<br><br>')
-            #         w_questiontext  = w_questiontext.replace('<br><br><br><br>', '<br><br>', )
-            #     elif count == 2:
-            #         # replace the first <br> with <brr>
-            #         # replace the second <br> with <br><br>
-            #         # replace the first <brr> with <br>
-            #         w_questiontext = w_questiontext.replace('<br>', '<brr>', 1)
-            #         w_questiontext = w_questiontext.replace('<br>', '<br><br>', 1)
-            #         w_questiontext = w_questiontext.replace('<brr>', '<br>', 1)
-
-
-            if "Question ID: " not in w_questiontext:             #"Insert Moodle Question #
-                moodle_qno = get_moodle_qn(moodle_id)
+            if "Question ID: " not in w_questiontext:
+                if 'moodle_qno' in question:
+                    moodle_qno = moodle_id[2:3] + str(question['moodle_qno'])                 
+                else:             #"Insert Moodle Question #
+                    moodle_qno = get_moodle_qn(moodle_id)
                 w_questiontext = "Question ID: " + moodle_qno + '<br>' + w_questiontext            
         if 'option1' in question:
             w_option1 = question['option1']
         elif 'answer1' in question:
-            w_option1 = question['answer1']
-       
+            w_option1 = question['answer1']       
         if 'option2' in question:
             w_option2 = question['option2']
         elif 'answer2' in question:
@@ -451,14 +476,11 @@ def create_moodle_xml(questions):
                 #w_correctfeedback = question['soln']  # Too many corrections
         elif 'soln' in question:
             w_correctfeedback = question['soln']
-
-        
-        # In language transalates remove duplicates if options contains only numbers
-        w_option1_lang = w_option2_lang = w_option3_lang = w_option4_lang = ""
-        w_lang_xml = ""
-        if 'incorrect_feedback' in question:    # This field only available in language transalation
+        if not w_questiontext.isascii():
             w_lang_xml = "X"
-            #w_questiontext = adjust_question_text(w_questiontext, w_lang_xml)
+        # In language transalates remove duplicates if options contains only numbers        
+        #if 'incorrect_feedback' in question:    # This field only available in language transalation
+        if w_lang_xml == "X":    
             w_option1_lang = w_option1
             w_option2_lang = w_option2
             w_option3_lang = w_option3
@@ -468,23 +490,30 @@ def create_moodle_xml(questions):
             w_option3 = check_replace_duplicate(w_option3)
             w_option4 = check_replace_duplicate(w_option4)
             w_option1, w_option2, w_option3, w_option4 = check_adjust_options(w_option1, w_option2, w_option3, w_option4)
-            # w_questiontext = remove_spaces(w_questiontext)
-            # w_option1 = remove_spaces(w_option1)   
-            # w_option2 = remove_spaces(w_option2)
-            # w_option3 = remove_spaces(w_option3)
-            # w_option4 = remove_spaces(w_option4)
-            # w_correctfeedback = remove_spaces(w_correctfeedback)
             
+        
 
-        # Fix many issues in formatting        
+        # Fix many issues in formatting
+        w_questiontext = remove_spaces(w_questiontext)
+        w_option1 = remove_spaces(w_option1)
+        w_option2 = remove_spaces(w_option2)
+        w_option3 = remove_spaces(w_option3)
+        w_option4 = remove_spaces(w_option4)
+        w_correctfeedback = remove_spaces(w_correctfeedback)        
         w_questiontext = correct_formatting(w_questiontext, w_lang_xml)
         w_option1 = correct_formatting(w_option1, w_lang_xml)
         w_option2 = correct_formatting(w_option2, w_lang_xml)
         w_option3 = correct_formatting(w_option3, w_lang_xml)
         w_option4 = correct_formatting(w_option4, w_lang_xml)
-        w_correctfeedback = correct_formatting(w_correctfeedback, w_lang_xml)
+        w_correctfeedback = correct_formatting(w_correctfeedback, w_lang_xml)        
+        # Remove the below code after testing
+        #st.subheader(w_correctfeedback)
+    # Remove the above code after testing
         # Remove unnecessary Text   
         w_correctfeedback = remove_unnecessary_text(w_correctfeedback, w_lang_xml)        
+
+        
+        
 
         # Check and convert the text into Moodle Format
         w_questiontext = convert_math_delimiters(w_questiontext)
@@ -498,9 +527,7 @@ def create_moodle_xml(questions):
         w_option4 = convert_math_delimiters(w_option4)
         w_option4 = convert_new_line(w_option4)        
         w_correctfeedback = convert_math_delimiters(w_correctfeedback)
-        w_correctfeedback = convert_new_line(w_correctfeedback)
-        w_correct_answer = ""
-        w_correct_answer_mod_lang = ""
+        w_correctfeedback = convert_new_line(w_correctfeedback)        
         if w_answer.upper() == 'A':            
             w_correct_answer = w_option1
             if w_option1 != w_option1_lang:
@@ -519,7 +546,7 @@ def create_moodle_xml(questions):
                 w_correct_answer_mod_lang = w_option4
 
         w_correct_answer_lang = ""
-        if 'incorrect_feedback' in question:
+        if 'incorrect_feedback' in question and w_lang_xml == "X":
             if w_correct_answer_mod_lang != "":
                 w_incorrect_answer_msg = update_lang_incorrect_msg(question['incorrect_feedback'], w_correct_answer_mod_lang)
             else:
@@ -588,7 +615,7 @@ def create_moodle_xml(questions):
             feedback_text.text = w_correctfeedback  #question["correctfeedback"]
             incorrectfeedback = ET.SubElement(question_element, "incorrectfeedback")
             incorrectfeedback_text = ET.SubElement(incorrectfeedback, "text")
-            if 'incorrect_feedback' in question:
+            if 'incorrect_feedback' in question and w_lang_xml == "X":
                 incorrectfeedback_mod_text = prepare_correctfeedback_text_lang(w_correct_answer,w_correctfeedback, w_correct_answer_lang )
             else:
                 incorrectfeedback_mod_text = prepare_correctfeedback_text_en(w_correct_answer,w_correctfeedback )
